@@ -1,0 +1,321 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "apiVersions": {
+      "type": "object"
+    },
+    "uniqueNameFix": {
+      "type": "string"
+    },
+    "projectName": {
+      "type": "string"
+    },
+    "adminUserName": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "clusterSshKey": {
+      "type": "string"
+    },
+    "clusterServicePrincipalId": {
+      "type": "securestring"
+    },
+    "clusterServicePrincipalKey": {
+      "type": "securestring"
+    },
+    "clusterServicePrincipalOid": {
+      "type": "securestring"
+    },
+    "bootstrapStorageAccount": {
+      "type": "securestring"
+    },
+    "bootstrapStorageAccountSas": {
+      "type": "securestring"
+    },
+    "bootstrapStorageAccountUrl": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "apiVersions": "[parameters('apiVersions')]",
+    "uniqueNameFix": "[parameters('uniqueNameFix')]",
+    "projectName": "[parameters('projectName')]",
+    "adminUserName": "[parameters('adminUserName')]",
+    "adminPassword": "[parameters('adminPassword')]",
+    "bootstrapStorageAccountName": "[parameters('bootstrapStorageAccount')]",
+    "bootstrapStorageAccountId": "[resourceId(subscription().subscriptionId, resourceGroup().name,'Microsoft.Storage/storageAccounts', variables('bootstrapStorageAccountName'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersions').deployments]",
+      "name": "identity",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(deployment().properties.templateLink.uri, 'identity.json'), parameters('bootstrapStorageAccountSas'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "projectName": {
+            "value": "[variables('projectName')]"
+          },
+          "apiVersions": {
+            "value": "[variables('apiVersions')]"
+          },
+          "uniqueNameFix": {
+            "value": "[variables('uniqueNameFix')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersions').deployments]",
+      "name": "analytics",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(deployment().properties.templateLink.uri, 'analytics.json'), parameters('bootstrapStorageAccountSas'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "projectName": {
+            "value": "[variables('projectName')]"
+          },
+          "apiVersions": {
+            "value": "[variables('apiVersions')]"
+          },
+          "uniqueNameFix": {
+            "value": "[variables('uniqueNameFix')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersions').deployments]",
+      "name": "network",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(deployment().properties.templateLink.uri, 'network.json'), parameters('bootstrapStorageAccountSas'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "projectName": {
+            "value": "[variables('projectName')]"
+          },
+          "apiVersions": {
+            "value": "[variables('apiVersions')]"
+          },
+          "uniqueNameFix": {
+            "value": "[variables('uniqueNameFix')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersions').deployments]",
+      "name": "storage",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(deployment().properties.templateLink.uri, 'storage.json'), parameters('bootstrapStorageAccountSas'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "projectName": {
+            "value": "[variables('projectName')]"
+          },
+          "apiVersions": {
+            "value": "[variables('apiVersions')]"
+          },
+          "uniqueNameFix": {
+            "value": "[variables('uniqueNameFix')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersions').deployments]",
+      "name": "registry",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(deployment().properties.templateLink.uri, 'registry.json'), parameters('bootstrapStorageAccountSas'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "projectName": {
+            "value": "[variables('projectName')]"
+          },
+          "apiVersions": {
+            "value": "[variables('apiVersions')]"
+          },
+          "uniqueNameFix": {
+            "value": "[variables('uniqueNameFix')]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersions').deployments]",
+      "name": "cluster",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(deployment().properties.templateLink.uri, 'cluster.json'), parameters('bootstrapStorageAccountSas'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "projectName": {
+            "value": "[variables('projectName')]"
+          },
+          "apiVersions": {
+            "value": "[variables('apiVersions')]"
+          },
+          "uniqueNameFix": {
+            "value": "[variables('uniqueNameFix')]"
+          },
+          "servicePrincipalId": {
+            "value": "[parameters('clusterServicePrincipalId')]"
+          },
+          "servicePrincipalKey": {
+            "value": "[parameters('clusterServicePrincipalKey')]"
+          },
+          "adminUserName": {
+            "value": "[parameters('adminUserName')]"
+          },
+          "adminSshKey": {
+            "value": "[parameters('clusterSshKey')]"
+          },
+          "workspaceResourceId": {
+            "value": "[reference('analytics').outputs.workspaceResourceId.value]"
+          },
+          "vnetSubnetId": {
+            "value": "[reference('network').outputs.clusterSubnetId.value]"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersions').deployments]",
+      "name": "gateway",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(deployment().properties.templateLink.uri, 'gateway.json'), parameters('bootstrapStorageAccountSas'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "projectName": {
+            "value": "[variables('projectName')]"
+          },
+          "apiVersions": {
+            "value": "[variables('apiVersions')]"
+          },
+          "uniqueNameFix": {
+            "value": "[variables('uniqueNameFix')]"
+          },
+          "vnetSubnetId": {
+            "value": "[reference('network').outputs.gatewaySubnetId.value]"
+          }
+        }
+      }
+    },    
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('apiVersions').deployments]",
+      "name": "jumpbox",
+      "dependsOn": [],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(uri(deployment().properties.templateLink.uri, 'jumpbox.json'), parameters('bootstrapStorageAccountSas'))]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "projectName": {
+            "value": "[variables('projectName')]"
+          },
+          "apiVersions": {
+            "value": "[variables('apiVersions')]"
+          },
+          "uniqueNameFix": {
+            "value": "[variables('uniqueNameFix')]"
+          },
+          "subnetId": {
+            "value": "[reference('network').outputs.jumpboxSubnetId.value]"
+          },
+          "adminUserName": {
+            "value": "[variables('adminUserName')]"
+          },
+          "adminPassword": {
+            "value": "[variables('adminPassword')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "vnetId": {
+      "value": "[reference('network').outputs.vnetId.value]",
+      "type": "string"
+    },
+    "registryName": {
+      "value": "[reference('registry').outputs.registryName.value]",
+      "type": "string"
+    },
+    "registryUserName": {
+      "value": "[reference('registry').outputs.registryUserName.value]",
+      "type": "string"
+    },
+    "registryPassword": {
+      "value": "[reference('registry').outputs.registryPassword.value]",
+      "type": "string"
+    },
+    "clusterName": {
+      "value": "[reference('cluster').outputs.clusterName.value]",
+      "type": "string"
+    },
+    "clusterSubnetId": {
+      "value": "[reference('network').outputs.clusterSubnetId.value]",
+      "type": "string"
+    },
+    "identityName": {
+      "value": "[reference('identity').outputs.identityName.value]",
+      "type": "string"
+    },
+    "identityId": {
+      "value": "[reference('identity').outputs.identityId.value]",
+      "type": "string"
+    },
+    "identityPrincipalId": {
+      "value": "[reference('identity').outputs.identityPrincipalId.value]",
+      "type": "string"
+    },
+    "gatewayName": {
+      "value": "[reference('gateway').outputs.gatewayName.value]",
+      "type": "string"
+    },
+    "gatewayId": {
+      "value": "[reference('gateway').outputs.gatewayId.value]",
+      "type": "string"
+    }
+  }
+}

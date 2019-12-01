@@ -1,0 +1,43 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "projectName": {
+            "type": "string"
+        },
+        "apiVersions": {
+            "type": "object"
+        },
+        "uniqueNameFix": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "apiVersions": "[parameters('apiVersions')]",
+        "uniqueNameFix": "[parameters('uniqueNameFix')]",        
+        "identityName": "[concat('ingress-uid-' , variables('uniqueNameFix'))]",
+        "identityId": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('identityName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "name": "[variables('identityName')]",
+            "apiVersion": "[variables('apiVersions').identities]",
+            "location": "[resourceGroup().location]"
+        }
+   ],
+    "outputs": {
+        "identityId": {
+            "value": "[variables('identityId')]",
+            "type": "string"
+        },
+        "identityName": {
+            "value": "[variables('identityName')]",
+            "type": "string"
+        },
+        "identityPrincipalId": {
+            "value": "[reference(variables('identityId'), '2015-08-31-PREVIEW').principalId]",
+            "type": "string"
+        }
+    }
+}

@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-flex-blobfuse
+spec:
+  containers:
+  - name: nginx-flex-blobfuse
+    image: nginx
+    volumeMounts:
+    - name: test
+      mountPath: /mnt/blobfusedata
+  volumes:
+  - name: test
+    flexVolume:
+      driver: "azure/blobfuse"
+      readOnly: false
+      secretRef:
+        name: blobfusecreds
+      options:
+        container: blobfuseroot
+        tmppath: /tmp/blobfuse
+        mountoptions: "--file-cache-timeout-in-seconds=120"

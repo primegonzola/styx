@@ -1,0 +1,16 @@
+apiVersion: azure.com/v1alpha2
+kind: ExternalMetric
+metadata:
+    name: appgw-request-count-metric
+spec:
+    type: azuremonitor
+    azure:
+        resourceGroup: <resource-group> # replace with your application gateway's resource group name
+        resourceName: <application-gateway> # replace with your application gateway's name
+        resourceProviderNamespace: Microsoft.Network
+        resourceType: applicationGateways
+    metric:
+        metricName: AvgRequestCountPerHealthyHost
+        aggregation: Average
+        # filter: BackendSettingsPool eq '<backend-pool-name>~<backend-http-setting-name>' # optional
+        

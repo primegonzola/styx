@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus-routing
+  namespace: monitoring
+  annotations:
+    kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+  rules:
+  - host: prometheus-routing.ba7ec7ebc10b4a2ba863.westeurope.aksapp.io
+    http:
+      paths:
+      - backend:
+          serviceName: prometheus-pushgateway
+          servicePort: 80
+        path: /

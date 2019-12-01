@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-web-app
+spec:
+  selector:
+    matchLabels:
+      app: demo-web-app
+  template:
+    metadata:
+      labels:
+        app: demo-web-app
+    spec:
+      containers:
+      - image: "<registry-server>/demo-web-app:v1"
+        name: demo-web-app
+        ports:
+        - containerPort: 3000
+          protocol: TCP
+# apiVersion: v1
+# kind: Pod
+# metadata:
+#   name: demo-web-app
+#   labels:
+#     app: demo-web-app
+# spec:
+#   containers:
+#   - image: "<registry-server>/demo-web-app:v1"
+#     name: demo-web-app
+#     ports:
+#     - containerPort: 3000
+#       protocol: TCP
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-web-app
+spec:
+  selector:
+    app: demo-web-app
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: demo-web-app
+  annotations:
+    kubernetes.io/ingress.class: azure/application-gateway
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: demo-web-app
+          servicePort: 80

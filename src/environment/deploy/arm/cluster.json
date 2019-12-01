@@ -1,0 +1,166 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "projectName": {
+            "type": "string"
+        },
+        "apiVersions": {
+            "type": "object"
+        },
+        "uniqueNameFix": {
+            "type": "string"
+        },
+        "servicePrincipalId": {
+            "type": "securestring"
+        },
+        "servicePrincipalKey": {
+            "type": "securestring"
+        },
+        "adminUserName": {
+            "type": "securestring"
+        },
+        "adminSshKey": {
+            "type": "securestring"
+        },
+        "workspaceResourceId": {
+            "type": "securestring"
+        },
+        "nodeCount": {
+            "type": "int",
+            "defaultValue": 3,
+            "minValue": 1,
+            "maxValue": 10
+        },
+        "nodeMinCount": {
+            "type": "int",
+            "defaultValue": 1,
+            "minValue": 1,
+            "maxValue": 10
+        },
+        "nodeMaxCount": {
+            "type": "int",
+            "defaultValue": 5,
+            "minValue": 1,
+            "maxValue": 10
+        },
+        "nodeVMSize": {
+            "type": "string",
+            "defaultValue": "Standard_D2s_v3"
+        },
+        "nodeOSType": {
+            "type": "string",
+            "defaultValue": "Linux",
+            "allowedValues": [
+                "Linux"
+            ]
+        },
+        "nodeOSDiskSizeGB": {
+            "type": "int",
+            "defaultValue": 0,
+            "minValue": 0,
+            "maxValue": 1023
+        },
+        "kubernetesVersion": {
+            "type": "string",
+            "defaultValue": "1.14.8"
+        },
+        "enableHttpApplicationRouting": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "networkPlugin": {
+            "type": "string",
+            "allowedValues": [
+                "azure",
+                "kubenet"
+            ],
+            "defaultValue": "azure"
+        },
+        "maxPods": {
+            "type": "int",
+            "defaultValue": 30
+        },
+        "enableRBAC": {
+            "type": "bool",
+            "defaultValue": true
+        },
+        "enableAutoScaling": {
+            "type": "bool",
+            "defaultValue": false
+        },
+        "vnetSubnetId": {
+            "type": "string"
+        },
+        "serviceCidr": {
+            "type": "string",
+            "defaultValue": "10.0.0.0/16"
+        },
+        "dnsServiceIP": {
+            "type": "string",
+            "defaultValue": "10.0.0.10"
+        },
+        "dockerBridgeCidr": {
+            "type": "string",
+            "defaultValue": "172.17.0.1/16"
+        }
+    },
+    "variables": {
+        "apiVersions": "[parameters('apiVersions')]",
+        "uniqueNameFix": "[parameters('uniqueNameFix')]",
+        "clusterName": "[concat('clusteraks',variables('uniqueNameFix'))]",
+        "dnsPrefix": "[concat('cluster-dns-',variables('uniqueNameFix'))]",
+        "vnetSubnetId": "[parameters('vnetSubnetId')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ContainerService/managedClusters",
+            "apiVersion": "[variables('apiVersions').managedClusters]",
+            "name": "[variables('clusterName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "kubernetesVersion": "[parameters('kubernetesVersion')]",
+                "dnsPrefix": "[variables('dnsPrefix')]",
+                "enableRBAC": "[parameters('enableRBAC')]",
+                "addonProfiles": {
+                    "httpApplicationRouting": {
+                        "enabled": "[parameters('enableHttpApplicationRouting')]"
+                    }
+                },
+                "agentPoolProfiles": [
+                    {
+                        "name": "agentpool",
+                        "type": "VirtualMachineScaleSets",
+                        "osType": "[parameters('nodeOSType')]",
+                        "vmSize": "[parameters('nodeVMSize')]",
+                        "osDiskSizeGB": "[parameters('nodeOSDiskSizeGB')]",
+                        "count": "[parameters('nodeCount')]",
+                        "vnetSubnetID": "[variables('vnetSubnetID')]",
+                        "maxPods": "[parameters('maxPods')]",
+                        "enableAutoScaling": "[parameters('enableAutoScaling')]"
+                    }
+                ],
+                "servicePrincipalProfile": {
+                    "clientId": "[parameters('servicePrincipalId')]",
+                    "secret": "[parameters('servicePrincipalKey')]"
+                },
+                "networkProfile": {
+                    "networkPlugin": "[parameters('networkPlugin')]",
+                    "serviceCidr": "[parameters('serviceCidr')]",
+                    "dnsServiceIP": "[parameters('dnsServiceIP')]",
+                    "dockerBridgeCidr": "[parameters('dockerBridgeCidr')]"
+                }
+            }
+        }
+    ],
+    "outputs": {
+        "clusterName": {
+            "type": "string",
+            "value": "[variables('clusterName')]"
+        },
+        "clusterFqdn": {
+            "type": "string",
+            "value": "[reference(variables('clusterName')).fqdn]"
+        }
+    }
+}

@@ -1,0 +1,86 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: azure-files-premium
+provisioner: kubernetes.io/azure-file
+mountOptions:
+  - dir_mode=0777
+  - file_mode=0777
+  - uid=1000
+  - gid=1000
+parameters:
+  skuName: Premium_LRS
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: system:azure-cloud-provider
+rules:
+- apiGroups: ['']
+  resources: ['secrets']
+  verbs:     ['get','create']
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: system:azure-cloud-provider
+roleRef:
+  kind: ClusterRole
+  apiGroup: rbac.authorization.k8s.io
+  name: system:azure-cloud-provider
+subjects:
+- kind: ServiceAccount
+  name: persistent-volume-binder
+  namespace: kube-system
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-files-premium
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azure-files-premium
+  resources:
+    requests:
+      storage: 200Gi
+---
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  labels:
+    run: azure-files-premium-test
+  name: azure-files-premium-test
+spec:
+  replicas: 1
+  serviceName: ubuntu
+  selector:
+    matchLabels:
+      run: azure-files-premium-test
+  template:
+    metadata:
+      labels:
+        run: azure-files-premium-test
+    spec:
+      containers:
+      - args:
+        - bash
+        image: ubuntu:19.04
+        command: [ "/bin/bash", "-c", "--" ]
+        args: [ "while true; do sleep 30; done;" ]
+        imagePullPolicy: IfNotPresent
+        name: azure-files-premium-test
+        resources: {}
+        volumeMounts:
+        - mountPath: /mnt/azurefilespremium
+          name: volume
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: volume
+          persistentVolumeClaim:
+            claimName: azure-files-premium
+

@@ -1,0 +1,58 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "projectName": {
+            "type": "string"
+        },
+        "apiVersions": {
+            "type": "object"
+        },
+        "uniqueNameFix": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "apiVersions": "[parameters('apiVersions')]",
+        "uniqueNameFix": "[parameters('uniqueNameFix')]",
+        "registry": "[concat('registryacr', variables('uniqueNameFix'))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('registry')]",
+            "type": "Microsoft.ContainerRegistry/registries",
+            "apiVersion": "[variables('apiVersions').containerRegistries]",
+            "location": "[resourceGroup().location]",
+            "comments": "Container registry for storing docker images",
+            "tags": {
+                "displayName": "Container Registry",
+                "container.registry": "[variables('registry')]"
+            },
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+            },
+            "properties": {
+                "adminUserEnabled": true
+            }
+        }
+    ],
+    "outputs": {
+        "registryName": {
+            "value": "[variables('registry')]",
+            "type": "string"
+        },
+        "registryServer": {
+            "value": "[reference(resourceId('Microsoft.ContainerRegistry/registries',variables('registry'))).loginServer]",
+            "type": "string"
+        },
+        "registryUserName": {
+            "value": "[variables('registry')]",
+            "type": "string"
+        },
+        "registryPassword": {
+            "value": "[listCredentials(resourceId('Microsoft.ContainerRegistry/registries',variables('registry')),'2017-10-01').passwords[0].value]",
+            "type": "string"
+        }
+    }
+}

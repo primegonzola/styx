@@ -1,0 +1,35 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: azure-devops-agent
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: azure-devops-agent
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+      - name: azure-devops-agent
+        image: registryacrdgzib6ds.azurecr.io/azure-devops-agent:latest
+        env:
+        - name: AZP_URL
+          valueFrom:
+            secretKeyRef:
+              name: azp-variables
+              key: azp-url        
+        - name: AZP_USER
+          valueFrom:
+            secretKeyRef:
+              name: azp-variables
+              key: azp-user        
+        - name: AZP_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: azp-variables
+              key: azp-token        
+
+
+         

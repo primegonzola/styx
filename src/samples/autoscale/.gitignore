@@ -1,0 +1,7 @@
+app.yaml
+auth.json
+metric.yaml
+config.yaml
+parameters.json
+deployment-outputs.json
+azure-k8s-metrics-adapter

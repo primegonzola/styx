@@ -1,0 +1,52 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  labels:
+    run: managed-disk-test
+  name: managed-disk-test
+spec:
+  replicas: 1
+  serviceName: ubuntu
+  selector:
+    matchLabels:
+      run: managed-disk-test
+  template:
+    metadata:
+      labels:
+        run: managed-disk-test
+    spec:
+      containers:
+      - args:
+        - bash
+        image: ubuntu:19.04
+        command: [ "/bin/bash", "-c", "--" ]
+        args: [ "while true; do sleep 30; done;" ]
+        imagePullPolicy: IfNotPresent
+        name: managed-disk-test
+        resources: {}
+        volumeMounts:
+        - mountPath: /mnt/manageddisk
+          name: disk
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        tag: managed-disk-test
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+
+  volumeClaimTemplates:
+  - metadata:
+      creationTimestamp: null
+      name: disk
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      dataSource: null
+      resources:
+        requests:
+          storage: 10Gi
+      storageClassName: managed-premium
+
+
+
