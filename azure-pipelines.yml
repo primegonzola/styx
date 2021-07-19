@@ -1,7 +1,7 @@
 ################################################ Azure DevOps Pipeline ################################################
 
 variables:
-  - group: cpp-infrastructure-pipeline
+  - group: infrastructure-pipeline
 
 pr: none
 
@@ -42,9 +42,9 @@ jobs:
             EXPECTED_C="CCC"
 
             ERROR_COUNT=0
-            [ ${A:?} != "${EXPECTED_A:?}" ] && echo "Azure changed my variable A from [${EXPECTED_A:?}] to [${A:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable A is OK"
-            [ ${B:?} != "${EXPECTED_B:?}" ] && echo "Azure changed my variable BB from [${EXPECTED_B:?}] to [${B:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable B is OK"
-            [ ${C:?} != "${EXPECTED_C:?}" ] && echo "Azure changed my variable CCC from [${EXPECTED_C:?}] to [${C:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable C is OK"
+            [ ${A:?} != "${EXPECTED_A:?}" ] && echo "ADO changed my variable A from [${EXPECTED_A:?}] to [${A:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable A is OK"
+            [ ${B:?} != "${EXPECTED_B:?}" ] && echo "ADO changed my variable BB from [${EXPECTED_B:?}] to [${B:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable B is OK"
+            [ ${C:?} != "${EXPECTED_C:?}" ] && echo "ADO changed my variable CCC from [${EXPECTED_C:?}] to [${C:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable C is OK"
 
             test ${ERROR_COUNT} -eq 0 || exit 1
 
