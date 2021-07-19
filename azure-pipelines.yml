@@ -24,9 +24,9 @@ jobs:
             B="EE"
             C="FFF"
 
-            echo "##vso[task.setvariable variable=A]${A:?}"
-            echo "##vso[task.setvariable variable=B]${B:?}"
-            echo "##vso[task.setvariable variable=C]${C:?}"
+            echo ##vso[task.setvariable variable=A]${A:?}
+            echo ##vso[task.setvariable variable=B]${B:?}
+            echo ##vso[task.setvariable variable=C]${C:?}
 
       - task: Bash@3
         name: ConsumeVariables
