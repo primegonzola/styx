@@ -32,7 +32,7 @@ jobs:
         name: ConsumeVariables
         displayName: Consume variables
         inputs:
-          azureSubscription: $(azureSubscription)
+          azureSubscription: 'Azure Rules(886b84e6-68e5-4a4d-8230-61235c4a2087)'
           addSpnToEnvironment: true
           scriptLocation: inlineScript
           scriptType: bash
@@ -50,3 +50,4 @@ jobs:
             [ ${C:?} != "${EXPECTED_C:?}" ] && echo "Azure changed my variable CCC from [${EXPECTED_C:?}] to [${C:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable C is OK"
 
             test ${ERROR_COUNT} -eq 0 || exit 1
+
