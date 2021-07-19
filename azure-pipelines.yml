@@ -18,7 +18,7 @@ jobs:
           targetType: inline
           script: |
             set -e
-            # set -x
+            set -x
 
             A="D"
             B="EE"
