@@ -1,0 +1,53 @@
+################################################ Azure DevOps Pipeline ################################################
+
+variables:
+  - group: cpp-infrastructure-pipeline
+
+pr: none
+
+pool:
+  vmImage: 'ubuntu-latest'
+  name: 'Private Cloud'
+
+jobs:
+  - job: ReproduceQuoteBug
+    steps:
+      - task: Bash@3
+        name: ProduceVariables
+        displayName: Produce variables
+        inputs:
+          targetType: inline
+          script: |
+            set -e
+            set -x
+
+            A="A"
+            B="BB"
+            C="CCC"
+
+            echo "##vso[task.setvariable variable=A]${A:?}"
+            echo "##vso[task.setvariable variable=B]${B:?}"
+            echo "##vso[task.setvariable variable=C]${C:?}"
+
+      - task: AzureCLI@2
+        name: ConsumeVariables
+        displayName: Consume variables
+        inputs:
+          azureSubscription: $(azureSubscription)
+          addSpnToEnvironment: true
+          scriptLocation: inlineScript
+          scriptType: bash
+          inlineScript: |
+            set -e
+            set -x
+
+            EXPECTED_A="A"
+            EXPECTED_B="BB"
+            EXPECTED_C="CCC"
+
+            ERROR_COUNT=0
+            [ ${A:?} != "${EXPECTED_A:?}" ] && echo "Azure changed my variable A from [${EXPECTED_A:?}] to [${A:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable A is OK"
+            [ ${B:?} != "${EXPECTED_B:?}" ] && echo "Azure changed my variable BB from [${EXPECTED_B:?}] to [${B:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable B is OK"
+            [ ${C:?} != "${EXPECTED_C:?}" ] && echo "Azure changed my variable CCC from [${EXPECTED_C:?}] to [${C:?}]" && ERROR_COUNT=$((ERROR_COUNT+1)) || echo "Variable C is OK"
+
+            test ${ERROR_COUNT} -eq 0 || exit 1
