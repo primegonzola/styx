@@ -35,7 +35,7 @@ jobs:
           targetType: inline
           script: |
             set -e
-            # set -x
+            set -x
 
             EXPECTED_A="D"
             EXPECTED_B="EE"
